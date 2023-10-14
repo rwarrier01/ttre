@@ -65,8 +65,10 @@ function App() {
 
   const calculateMaxTicketScore = () => {
     let total = 0;
-    selectedTickets.forEach(ticket => {
-      total += ticket.score;
+    drawnTickets.forEach(ticket => {
+      if (!selectedTickets.includes(ticket)) {
+        total += ticket.score;
+      }
     })
     keptTickets.forEach(ticket => {
       total += ticket.score;
