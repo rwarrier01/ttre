@@ -1,3 +1,5 @@
+import DeleteIcon from '@mui/icons-material/Delete';
+import { Backdrop, Box, Button, CircularProgress } from '@mui/material';
 import React, { useState } from 'react';
 
 function App() {
@@ -6,8 +8,10 @@ function App() {
   const [keptTickets, setKeptTickets] = useState([]);
   const [selectedTickets2, setSelectedTickets2] = useState([]);
   const [drawButtonDisabled, setDrawButtonDisabled] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const drawTickets = () => {
+    setLoading(true);
     fetch(`https://ttre.onrender.com/api/draw-tickets`, { method: 'POST' })
       .then((response) => response.json())
       .then((data) => {
@@ -18,7 +22,10 @@ function App() {
         } else {
           alert(data.message);
         }
-      });
+      })
+      .finally(() => {
+        setLoading(false);
+      })
   };
 
   const discardSelectedTickets = () => {
@@ -82,6 +89,7 @@ function App() {
     );
 
     if (confirmReset) {
+      setLoading(true);
       fetch('https://ttre.onrender.com/api/reset-tickets', { method: 'POST' })
         .then((response) => response.json())
         .then((data) => {
@@ -93,7 +101,10 @@ function App() {
           } else {
             alert(data.message);
           }
-        });
+        })
+        .finally(() => {
+          setLoading(false);
+        })
     }
   };
 
@@ -108,44 +119,81 @@ function App() {
       {drawnTicketsVisible && (
         <div>
           <h2>Drawn tickets:</h2>
-          <ul>
+          <p>Select tickets to discard...</p>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
             {drawnTickets.map((ticket, index) => (
-              <li key={index}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={selectedTickets.includes(ticket)}
-                    onChange={() => toggleTicketSelection(ticket)}
-                  />{' '}
-                  {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
-                </label>
-              </li>
+              <Button
+                key={index}
+                sx={{
+                  p: 1,
+                  m: 1,
+                  borderRadius: 2,
+                  fontSize: '0.875rem',
+                  fontWeight: '700',
+                }}
+                variant={selectedTickets.includes(ticket) ? 'contained' : 'outlined'}
+                onClick={() => toggleTicketSelection(ticket)}
+              >
+                {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
+              </Button>
             ))}
-          </ul>
-          <button onClick={discardSelectedTickets}>Discard selected tickets</button>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center', pt: '10px' }}>
+          <Button color='error' aria-label="delete" size="large" onClick={discardSelectedTickets} startIcon={<DeleteIcon />}>
+            Discard tickets
+          </Button>
+          </Box>
+          
         </div>
       )}
       
       <hr />
 
-      { keptTickets.length > 0 &&
+      { (drawButtonDisabled || keptTickets.length > 0) &&
         <div>
           <h2>Your tickets:</h2>
           {keptTickets.length > 0 && <span>Select completed tickets to update total score.</span>}
-          <ul>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
             {keptTickets.map((ticket, index) => {
-              return <li key={index}>
-                <label>
-                  <input
-                    type="checkbox"
-                    checked={selectedTickets2.includes(ticket)}
-                    onChange={() => toggleTicketSelection2(ticket)}
-                  />
-                  {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
-                </label>
-              </li>;
+              return (
+              <Button
+                key={index}
+                sx={{
+                  p: 1,
+                  m: 1,
+                  borderRadius: 2,
+                  fontSize: '0.875rem',
+                  fontWeight: '700',
+                }}
+                color={selectedTickets2.includes(ticket) ? 'success' : 'error'}
+                variant='outlined'
+                onClick={() => toggleTicketSelection2(ticket)}
+              >
+                {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
+              </Button>);
             })}
-          </ul>
+            {drawnTickets
+              .filter((ticket) => !selectedTickets.includes(ticket))
+              .map((ticket, index) => {
+                return (
+                  <Button
+                    key={index}
+                    sx={{
+                      p: 1,
+                      m: 1,
+                      borderRadius: 2,
+                      fontSize: '0.875rem',
+                      fontWeight: '700',
+                    }}
+                    color='primary'
+                    variant='outlined'
+                    disabled
+                  >
+                    {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
+                  </Button>
+                )
+              })}
+          </Box>
         </div>
       }
     </div>
@@ -154,6 +202,18 @@ function App() {
     <div>
       <button onClick={resetTickets}>Reset Game</button>
     </div>
+
+    {loading && (
+        <Backdrop
+          open={loading}
+          sx={{ color: '#fff', backgroundColor: '#5e5e5e' }}
+        >
+          <Box display='flex' flexDirection='column' alignItems='center'>
+            <CircularProgress color="inherit" />
+            <h2>Waiting for tickets...</h2>
+          </Box>
+        </Backdrop>
+      )}
   </>;
 }
 
