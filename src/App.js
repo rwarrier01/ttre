@@ -8,7 +8,7 @@ function App() {
   const [drawButtonDisabled, setDrawButtonDisabled] = useState(false);
 
   const drawTickets = () => {
-    fetch('http://localhost:3001/api/draw-tickets', { method: 'POST' })
+    fetch(`https://ttre.onrender.com/api/draw-tickets`, { method: 'POST' })
       .then((response) => response.json())
       .then((data) => {
         if (data.success) {
@@ -80,7 +80,7 @@ function App() {
     );
 
     if (confirmReset) {
-      fetch('http://localhost:3001/api/reset-tickets', { method: 'POST' })
+      fetch('https://ttre.onrender.com/api/reset-tickets', { method: 'POST' })
         .then((response) => response.json())
         .then((data) => {
           if (data.success) {
