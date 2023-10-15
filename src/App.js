@@ -1,6 +1,8 @@
 import DeleteIcon from '@mui/icons-material/Delete';
-import { Backdrop, Box, Button, CircularProgress } from '@mui/material';
+import MapIcon from '@mui/icons-material/Map';
+import { Backdrop, Box, Button, Chip, CircularProgress, IconButton, Modal } from '@mui/material';
 import React, { useState } from 'react';
+import EuropeMap from './EuropeMap';
 
 function App() {
   const [drawnTickets, setDrawnTickets] = useState([]);
@@ -9,6 +11,8 @@ function App() {
   const [selectedTickets2, setSelectedTickets2] = useState([]);
   const [drawButtonDisabled, setDrawButtonDisabled] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [openMap, setOpenMap] = useState(false);
+  const [mapTicket, setMapTicket] = useState({});
 
   const drawTickets = () => {
     setLoading(true);
@@ -108,6 +112,12 @@ function App() {
     }
   };
 
+  const doOpenMap = (ticket) => {
+    console.log(ticket);
+    setOpenMap(true);
+    setMapTicket(ticket);
+  }
+
   const drawnTicketsVisible = drawnTickets.length > 0;
 
   return <>
@@ -120,79 +130,101 @@ function App() {
         <div>
           <h2>Drawn tickets:</h2>
           <p>Select tickets to discard...</p>
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', }} gap={2} pr={'5px'}>
             {drawnTickets.map((ticket, index) => (
-              <Button
-                key={index}
-                sx={{
-                  p: 1,
-                  m: 1,
-                  borderRadius: 2,
-                  fontSize: '0.875rem',
-                  fontWeight: '700',
-                }}
-                variant={selectedTickets.includes(ticket) ? 'contained' : 'outlined'}
-                onClick={() => toggleTicketSelection(ticket)}
-              >
-                {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
-              </Button>
+              <Box key={index} display='flex' justifyContent='center' flexDirection={'column'}>
+                <Button
+                  sx={{
+                    borderRadius: 2,
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  variant={selectedTickets.includes(ticket) ? 'contained' : 'outlined'}
+                  onClick={() => toggleTicketSelection(ticket)}
+                >
+                  {ticket.city1} &rarr; {ticket.city2}
+                  <Chip label={ticket.score} sx={{backgroundColor: '#ffcd38'}} />
+                </Button>
+                <Box display='flex' justifyContent='center'>
+                  <IconButton color='secondary' onClick={() => doOpenMap(ticket)}>
+                    <MapIcon />
+                  </IconButton>
+                </Box>
+              </Box>
             ))}
           </Box>
           <Box sx={{ display: 'flex', justifyContent: 'center', pt: '10px' }}>
-          <Button color='error' aria-label="delete" size="large" onClick={discardSelectedTickets} startIcon={<DeleteIcon />}>
-            Discard tickets
-          </Button>
+            <Button color='error' aria-label="delete" size="large" onClick={discardSelectedTickets} startIcon={<DeleteIcon />}>
+              Discard tickets
+            </Button>
           </Box>
           
         </div>
       )}
+
+      <Modal
+        open={openMap}
+        onClose={() => setOpenMap(false)}
+      >
+        <Box display='flex' flexDirection='column' alignItems='center' justifyContent='center' height='100vh' gap={2}>
+          <EuropeMap t={mapTicket} />
+          <Button variant='contained'  onClick={() => setOpenMap(false)}>Close</Button>
+        </Box>
+      </Modal>
       
       <hr />
 
       { (drawButtonDisabled || keptTickets.length > 0) &&
         <div>
           <h2>Your tickets:</h2>
-          {keptTickets.length > 0 && <span>Select completed tickets to update total score.</span>}
-          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }}>
-            {keptTickets.map((ticket, index) => {
-              return (
-              <Button
-                key={index}
-                sx={{
-                  p: 1,
-                  m: 1,
-                  borderRadius: 2,
-                  fontSize: '0.875rem',
-                  fontWeight: '700',
-                }}
-                color={selectedTickets2.includes(ticket) ? 'success' : 'error'}
-                variant='outlined'
-                onClick={() => toggleTicketSelection2(ticket)}
-              >
-                {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
-              </Button>);
-            })}
+          {keptTickets.length > 0 && <p>Select completed tickets to update total score.</p>}
+          <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)' }} gap={2} pr={'5px'}>
+            {keptTickets.map((ticket, index) => (
+              <Box key={index} display='flex' justifyContent='center' flexDirection={'column'}>
+                <Button
+                  sx={{
+                    borderRadius: 2,
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  color={selectedTickets2.includes(ticket) ? 'success' : 'error'}
+                  variant='outlined'
+                  onClick={() => toggleTicketSelection2(ticket)}
+                >
+                  {ticket.city1} &rarr; {ticket.city2}
+                  <Chip label={ticket.score} sx={{backgroundColor: '#ffcd38'}} />
+                </Button>
+                <Box display='flex' justifyContent='center'>
+                  <IconButton color='secondary' onClick={() => doOpenMap(ticket)}>
+                    <MapIcon />
+                  </IconButton>
+                </Box>
+              </Box>
+            ))}
             {drawnTickets
               .filter((ticket) => !selectedTickets.includes(ticket))
-              .map((ticket, index) => {
-                return (
-                  <Button
-                    key={index}
-                    sx={{
-                      p: 1,
-                      m: 1,
-                      borderRadius: 2,
-                      fontSize: '0.875rem',
-                      fontWeight: '700',
-                    }}
-                    color='primary'
-                    variant='outlined'
-                    disabled
-                  >
-                    {ticket.city1} &rarr; {ticket.city2} &#123;{ticket.score}&#125;
-                  </Button>
-                )
-              })}
+              .map((ticket, index) => (
+                <Button
+                  key={index}
+                  sx={{
+                    borderRadius: 2,
+                    fontSize: '0.875rem',
+                    fontWeight: '700',
+                    display: 'flex',
+                    flexDirection: 'column'
+                  }}
+                  color='primary'
+                  variant='outlined'
+                  disabled
+                >
+                  {ticket.city1} &rarr; {ticket.city2}
+                  <Chip label={ticket.score} />
+                </Button>
+              ))}
           </Box>
         </div>
       }
