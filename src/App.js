@@ -1,5 +1,6 @@
 import DeleteIcon from '@mui/icons-material/Delete';
 import MapIcon from '@mui/icons-material/Map';
+import LibraryAddRoundedIcon from '@mui/icons-material/LibraryAddRounded';
 import { Backdrop, Box, Button, Chip, CircularProgress, IconButton, Modal } from '@mui/material';
 import React, { useState } from 'react';
 import EuropeMap from './EuropeMap';
@@ -123,9 +124,9 @@ function App() {
   return <>
     <div>
       <h1>Ticket to Ride Europe</h1>
-      <button onClick={drawTickets} disabled={drawButtonDisabled}>
+      <Button onClick={drawTickets} disabled={drawButtonDisabled} startIcon={<LibraryAddRoundedIcon />} sx={{fontSize: '0.7rem'}}>
         Draw 3 Tickets
-      </button>
+      </Button>
       {drawnTicketsVisible && (
         <div>
           <h2>Drawn tickets:</h2>
@@ -136,7 +137,7 @@ function App() {
                 <Button
                   sx={{
                     borderRadius: 2,
-                    fontSize: '0.875rem',
+                    fontSize: '0.7rem',
                     fontWeight: '700',
                     display: 'flex',
                     flexDirection: 'column'
@@ -186,7 +187,7 @@ function App() {
                 <Button
                   sx={{
                     borderRadius: 2,
-                    fontSize: '0.875rem',
+                    fontSize: '0.7rem',
                     fontWeight: '700',
                     display: 'flex',
                     flexDirection: 'column'
@@ -212,7 +213,7 @@ function App() {
                   key={index}
                   sx={{
                     borderRadius: 2,
-                    fontSize: '0.875rem',
+                    fontSize: '0.7rem',
                     fontWeight: '700',
                     display: 'flex',
                     flexDirection: 'column'
@@ -229,10 +230,10 @@ function App() {
         </div>
       }
     </div>
-    <h4>Current ticket score: {calculateCurrentTicketScore()}</h4>
-    <h4>Maximum possible score: {calculateMaxTicketScore()}</h4>
+    <h4>Current ticket score: <Chip label={calculateCurrentTicketScore()} color={calculateCurrentTicketScore() < 0 ? 'error' : 'success'}/></h4>
+    <h4>Maximum possible score: <Chip label={calculateMaxTicketScore()} color={calculateMaxTicketScore() === calculateCurrentTicketScore() ? 'success' : 'primary'}/></h4>
     <div>
-      <button onClick={resetTickets}>Reset Game</button>
+      <Button color='error' variant='contained' onClick={resetTickets}>Reset Game</Button>
     </div>
 
     {loading && (
